@@ -1,71 +1,74 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
+# Run this app with `python app.py` and
+# visit http://127.0.0.1:8050/ in your web browser.
 
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
-import plotly.express as px
-from flask import Flask
 
-
-#define dataframe
-df = px.data.iris()
-
-server = Flask(__name__)
-app = dash.Dash(
-    __name__,
-    server=server,
-    #url_base_pathname='/yourpath'
-)
-
-# dash app layout
-option = [
-    {'label': 'Patal width', 'value': 'petal_width'},
-    {'label': 'Petal length', 'value': 'petal_length'},
-    {'label': 'Sepal width', 'value': 'sepal_width'},
-    {'label': 'Sepal length', 'value': 'sepal_length'}
-]
-
-app.layout = html.Div(
-    [
-    dcc.Graph(id="scatter-plot"),
+app = dash.Dash(__name__)
+server = app.server
+app.layout = html.Div([
     html.Div(
         children=[
-        html.Label('Select X'),
+        html.Label('Dropdown'),
         dcc.Dropdown(
-            id='select_x',
-            options=option,
-            value='petal_width'
+            options=[
+                {'label': 'New York City', 'value': 'NYC'},
+                {'label': u'Montréal', 'value': 'MTL'},
+                {'label': 'San Francisco', 'value': 'SF'}
+            ],
+            value='MTL'
         ),
+
         html.Br(),
-        html.Label('Select Y'),
+        html.Label('Multi-Select Dropdown'),
         dcc.Dropdown(
-            id='select_y',
-            options=option,
-            value='petal_length'
+            options=[
+                {'label': 'New York City', 'value': 'NYC'},
+                {'label': u'Montréal', 'value': 'MTL'},
+                {'label': 'San Francisco', 'value': 'SF'}
+            ],
+            value=['MTL', 'SF'],
+            multi=True
         ),
+
         html.Br(),
-        html.Label('Size'),
-        dcc.Dropdown(
-            id='size',
-            options=option,
-            value='sepal_length'
-        )
-    ], style={'padding': 10, 'flex': 1})  # end of children
-    
-], style={'display': 'flex', 'flex-direction': 'row'})  # end of Div
+        html.Label('Radio Items'),
+        dcc.RadioItems(
+            options=[
+                {'label': 'New York City', 'value': 'NYC'},
+                {'label': u'Montréal', 'value': 'MTL'},
+                {'label': 'San Francisco', 'value': 'SF'}
+            ],
+            value='MTL'
+        ),
+    ], style={'padding': 10, 'flex': 1}),
 
-# callback - feed data
-@app.callback( Output("scatter-plot", "figure"),
-               [Input("select_x", "value"), Input("select_y", "value"), Input("size", "value")])
+    html.Div(children=[
+        html.Label('Checkboxes'),
+        dcc.Checklist(
+            options=[
+                {'label': 'New York City', 'value': 'NYC'},
+                {'label': u'Montréal', 'value': 'MTL'},
+                {'label': 'San Francisco', 'value': 'SF'}
+            ],
+            value=['MTL', 'SF']
+        ),
 
-def update_scatter_chart(select_x, select_y, size):
-    fig = px.scatter(df,
-                     x=select_x, y=select_y,
-                     color="species", size=size)
-    fig.update_layout(width=600, height=400)
-    return fig
+        html.Br(),
+        html.Label('Text Input'),
+        dcc.Input(value='MTL', type='text'),
+
+        html.Br(),
+        html.Label('Slider'),
+        dcc.Slider(
+            min=0,
+            max=9,
+            marks={i: 'Label {}'.format(i) if i == 1 else str(i) for i in range(1, 6)},
+            value=5,
+        ),
+    ], style={'padding': 10, 'flex': 1})
+], style={'display': 'flex', 'flex-direction': 'row'})
 
 if __name__ == '__main__':
     app.run_server(debug=True)
